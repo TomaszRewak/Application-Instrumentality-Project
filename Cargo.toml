@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "magi",
+    "central-dogma"
+]
