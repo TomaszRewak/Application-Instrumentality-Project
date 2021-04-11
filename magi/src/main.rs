@@ -1,14 +1,12 @@
-use std::process::{Command};
-
 mod application;
 mod process;
 
+use application::Application;
+
 fn main() {
+    let application = Application::new(r"C:\Windows\System32\notepad.exe", "");
 
-
-    Command::new(r"C:\Windows\System32\notepad.exe")
-        .spawn()
-        .expect("Failed to execute command");
+    application.spawn();
 
     println!("Hello, world 1!");
 }
