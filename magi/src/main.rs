@@ -1,13 +1,13 @@
 mod application;
 mod instance;
-mod process;
 
 use application::Application;
 
 fn main() {
-    let application = Application::new(r"C:\Windows\System32\notepad.exe", "");
+    let mut application = Application::new("test", r"C:\Windows\System32\notepad.exe", "");
 
-    application.spawn();
+    application.add_instance("test");
+    application.start("test");
 
     println!("Hello, world 1!");
 }

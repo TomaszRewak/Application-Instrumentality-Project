@@ -1,6 +1,4 @@
 use super::instance::Instance;
-use super::process::Process;
-use std::process::Command;
 
 pub struct Application {
     name: String,
@@ -21,12 +19,13 @@ impl Application {
         }
     }
 
-    pub fn spawn(&self) -> Process {
-        let process = Command::new(self.path.clone())
-            .arg(self.args.clone())
-            .spawn()
-            .expect("Failed to execute command");
+    pub fn add_instance(&mut self, name: &str) {
+        self.instances.push(Instance::new(name));
+    }
 
-        Process::new(process)
+    pub fn start(&mut self, instance_name: &str) {
+        if let Some(instance) = self.instances.first_mut() {
+            instance.start(&self.path, &self.args);
+        }
     }
 }
