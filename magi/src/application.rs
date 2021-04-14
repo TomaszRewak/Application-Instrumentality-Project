@@ -10,16 +10,16 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(name: &str, path: &str, args: &str) -> Application {
+    pub fn new(name: String, path: String, args: String) -> Application {
         Application {
-            name: name.to_string(),
-            path: path.to_string(),
-            args: args.to_string(),
+            name: name,
+            path: path,
+            args: args,
             instances: Vec::new(),
         }
     }
 
-    pub fn add_instance(&mut self, name: &str) {
+    pub fn add_instance(&mut self, name: String) {
         self.instances.push(Instance::new(name));
     }
 

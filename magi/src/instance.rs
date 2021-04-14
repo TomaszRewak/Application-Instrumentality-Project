@@ -9,9 +9,9 @@ pub struct Instance {
 }
 
 impl Instance {
-    pub fn new(name: &str) -> Instance {
+    pub fn new(name: String) -> Instance {
         Instance {
-            name: name.to_string(),
+            name: name,
             unique_id: Uuid::new_v4(),
             process: None,
         }
