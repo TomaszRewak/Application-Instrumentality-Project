@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package application_management;
+
+message StartApplicationRequest
+{
+
+}
+
+message StartApplicationReply
+{
+
+}
+
+service ApplicationManager
+{
+    rpc StartApplciation (StartApplicationRequest) returns (StartApplicationReply);
+}
