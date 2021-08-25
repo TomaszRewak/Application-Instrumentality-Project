@@ -1,20 +1,17 @@
 mod application;
-mod application_manager;
 mod instance;
 mod proto;
 
 use application::Application;
-use application_manager::ApplicationManager;
-use proto::{StartApplicationReply, StartApplicationRequest};
 
 fn main() {
-    let a = StartApplicationReply {
-        error: Option::Some("gfgfgf".to_string()),
-    };
+    // let a = StartApplicationReply {
+    //     error: Option::Some("gfgfgf".to_string()),
+    // };
 
-    let application_manager = ApplicationManager::default;
+    // let application_manager = ApplicationManager::default;
 
-    println!("{:?}", a.error);
+    // println!("{:?}", a.error);
 
     let mut application = Application::new(
         "test".to_string(),
