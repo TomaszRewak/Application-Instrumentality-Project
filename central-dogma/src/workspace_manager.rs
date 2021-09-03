@@ -6,6 +6,17 @@ pub struct WorkspaceManager {}
 
 #[tonic::async_trait]
 impl proto::workspace_manager_server::WorkspaceManager for WorkspaceManager {
+    async fn login(
+        &self,
+        reqest: Request<proto::LoginRequest>,
+    ) -> Result<Response<proto::LoginReply>, Status> {
+        let reply = proto::LoginReply {
+            workstation_id: Option::Some(1),
+        };
+
+        Ok(Response::new(reply))
+    }
+
     async fn start_application(
         &self,
         request: Request<proto::StartApplicationRequest>,
