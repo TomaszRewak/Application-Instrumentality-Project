@@ -62,5 +62,5 @@ message ServerToClientMessage
 
 service WorkspaceManager
 {
-    rpc Connect(stream ClientToServerMessage) returns (stream ServerToClientMessage);
+    rpc Listen(stream ClientToServerMessage) returns (stream ServerToClientMessage);
 }
