@@ -16,20 +16,23 @@ impl Workstation {
         mut receiver: Streaming<proto::ClientToServerMessage>,
         sender: Sender<proto::ServerToClientMessage>,
     ) -> Arc<Mutex<Workstation>> {
-        let workstation = Arc::new(Mutex::new(Workstation {
-            sender: sender,
-        }));
+        let workstation = Arc::new(Mutex::new(Workstation { sender: sender }));
 
-        let workstation_copy = workstation.clone();
+        Workstation::run(workstation.clone(), receiver);
 
+        workstation
+    }
+
+    fn run(
+        workstation: Arc<Mutex<Workstation>>,
+        mut receiver: Streaming<proto::ClientToServerMessage>,
+    ) {
         tokio::spawn(async move {
             while let Some(Ok(message)) = receiver.next().await {
-                let workstation = workstation_copy.lock().await;
+                let workstation = workstation.lock().await;
                 workstation.process(message);
             }
         });
-
-        workstation
     }
 
     fn process(&self, message: proto::ClientToServerMessage) {
