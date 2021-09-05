@@ -1,39 +1,38 @@
 use super::proto;
 use async_channel::Sender;
+use futures_util::StreamExt;
+use std::rc::Rc;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use tonic::Status;
 use tonic::Streaming;
 
 pub struct Workstation {
-    receiver: Streaming<proto::ClientToServerMessage>,
     sender: Sender<proto::ServerToClientMessage>,
 }
 
 impl Workstation {
     pub fn create(
-        receiver: Streaming<proto::ClientToServerMessage>,
+        mut receiver: Streaming<proto::ClientToServerMessage>,
         sender: Sender<proto::ServerToClientMessage>,
-    ) -> Workstation {
-        // let process = tokio::spawn(async {
-        //     while let Some(Ok(message)) = receiver.next().await {
-        //         workstation.process(message);
-
-        //         let reply = proto::ServerToClientMessage {
-        //             one_of: Some(proto::server_to_client_message::OneOf::LoginReply(
-        //                 proto::LoginReply {
-        //                     error: Some("no error".to_string()),
-        //                 },
-        //             )),
-        //         };
-        //     }
-        // });
-
-        Workstation {
-            receiver: receiver,
+    ) -> Arc<Mutex<Workstation>> {
+        let workstation = Arc::new(Mutex::new(Workstation {
             sender: sender,
-        }
+        }));
+
+        let workstation_copy = workstation.clone();
+
+        tokio::spawn(async move {
+            while let Some(Ok(message)) = receiver.next().await {
+                let workstation = workstation_copy.lock().await;
+                workstation.process(message);
+            }
+        });
+
+        workstation
     }
 
-    pub fn process(&self, message: proto::ClientToServerMessage) {
+    fn process(&self, message: proto::ClientToServerMessage) {
         match message.one_of {
             Some(proto::client_to_server_message::OneOf::LoginRequest(login_request)) => {
                 self.process_login_request(login_request);
@@ -50,9 +49,11 @@ impl Workstation {
         }
     }
 
-    fn process_login_request(&self, login_request: proto::LoginRequest) {
+    async fn process_login_request(&self, login_request: proto::LoginRequest) {
         self.sender.send(proto::ServerToClientMessage {
-            one_of: Some(proto::server_to_client_message::OneOf::LoginReply(proto::LoginReply { error: None })),
+            one_of: Some(proto::server_to_client_message::OneOf::LoginReply(
+                proto::LoginReply { error: None },
+            )),
         });
     }
 
