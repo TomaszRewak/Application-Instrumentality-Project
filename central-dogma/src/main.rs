@@ -1,5 +1,6 @@
 mod proto;
 mod workspace_manager;
+mod workstation;
 
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use proto::workspace_manager_server::WorkspaceManagerServer;

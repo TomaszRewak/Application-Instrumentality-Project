@@ -12,6 +12,10 @@ tonic = "0.5"
 prost = "0.8"
 tokio-stream = "0.1"
 futures-core = "0.3"
+futures-util = "0.3"
+async-stream = "0.3"
+tokio = "1.0"
+async-channel = "1.6"
 
 [build-dependencies]
 tonic-build = "0.5"
