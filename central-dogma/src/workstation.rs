@@ -12,8 +12,8 @@ pub struct Workstation {
 }
 
 impl Workstation {
-    pub fn create(
-        mut receiver: Streaming<proto::ClientToServerMessage>,
+    pub fn new(
+        receiver: Streaming<proto::ClientToServerMessage>,
         sender: Sender<proto::ServerToClientMessage>,
     ) -> Arc<Mutex<Workstation>> {
         let workstation = Arc::new(Mutex::new(Workstation { sender: sender }));
@@ -30,15 +30,15 @@ impl Workstation {
         tokio::spawn(async move {
             while let Some(Ok(message)) = receiver.next().await {
                 let workstation = workstation.lock().await;
-                workstation.process(message);
+                workstation.process(message).await;
             }
         });
     }
 
-    fn process(&self, message: proto::ClientToServerMessage) {
+    async fn process(&self, message: proto::ClientToServerMessage) {
         match message.one_of {
             Some(proto::client_to_server_message::OneOf::LoginRequest(login_request)) => {
-                self.process_login_request(login_request);
+                self.process_login_request(login_request).await;
             }
             Some(proto::client_to_server_message::OneOf::StartApplicationReply(
                 start_application_reply,
@@ -53,11 +53,13 @@ impl Workstation {
     }
 
     async fn process_login_request(&self, login_request: proto::LoginRequest) {
+        println!("Received login request {:?}", login_request.hostname);
+
         self.sender.send(proto::ServerToClientMessage {
             one_of: Some(proto::server_to_client_message::OneOf::LoginReply(
                 proto::LoginReply { error: None },
             )),
-        });
+        }).await;
     }
 
     fn process_start_application_reply(

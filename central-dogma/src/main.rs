@@ -9,7 +9,7 @@ use workspace_manager::WorkspaceManager;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let management_address = "localhost:5122".parse().unwrap();
+    let management_address = "[::1]:5122".parse().unwrap();
     let workspace_manager = WorkspaceManager::new();
 
     Server::builder()

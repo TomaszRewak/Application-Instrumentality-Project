@@ -1,13 +1,9 @@
-use tokio::sync::Mutex;
 use super::proto;
 use super::workstation::Workstation;
 use futures_core::Stream;
-use futures_util::StreamExt;
-use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
+use tokio::sync::Mutex;
 use tonic::{Request, Response, Status, Streaming};
 
 pub struct WorkspaceManager {
@@ -39,7 +35,7 @@ impl proto::workspace_manager_server::WorkspaceManager for WorkspaceManager {
         let stream = request.into_inner();
         let (sender, receiver) = async_channel::unbounded();
 
-        let workstation = Workstation::create(stream, sender);
+        let workstation = Workstation::new(stream, sender);
 
         let output = async_stream::try_stream! {
             while let Ok(message) = receiver.recv().await {
