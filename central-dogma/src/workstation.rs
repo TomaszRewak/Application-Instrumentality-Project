@@ -48,6 +48,9 @@ impl Workstation {
             Some(proto::client_to_server_message::OneOf::RunTaskReply(run_task_reply)) => {
                 self.process_run_task_reply(run_task_reply);
             }
+            Some(proto::client_to_server_message::OneOf::Heartbeat(heartbeat)) => {
+                self.process_heartbeat(heartbeat);
+            }
             None => panic!("no message"),
         }
     }
@@ -69,4 +72,9 @@ impl Workstation {
     }
 
     fn process_run_task_reply(&self, run_task_reply: proto::RunTaskReply) {}
+
+    fn process_heartbeat(&self, heartbeat: proto::Heartbeat)
+    {
+        println!("Received heartbeat {:?}", heartbeat);
+    }
 }

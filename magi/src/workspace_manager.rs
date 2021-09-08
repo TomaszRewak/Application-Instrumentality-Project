@@ -1,6 +1,7 @@
 use super::proto;
 use std::error::Error;
-use std::time;
+use tokio::time;
+use tokio::time::Duration;
 use tonic::transport::Channel;
 use tonic::Request;
 
@@ -11,24 +12,9 @@ pub async fn listen(
     let (sender, receiver) = async_channel::unbounded();
 
     let outbound = async_stream::stream! {
-        
         while let Ok(message) = receiver.recv().await {
             yield message;
         }
-
-        // let mut interval = time::interval(Duration::from_secs(1));
-        // while let time = interval.tick().await {
-        //     let elapsed = time.duration_since(start);
-        //     let note = RouteNote {
-        //         location: Some(Point {
-        //             latitude: 409146138 + elapsed.as_secs() as i32,
-        //             longitude: -746188906,
-        //         }),
-        //         message: format!("at {:?}", elapsed),
-        //     };
-
-        //     yield note;
-        // }
     };
 
     let response = client.listen(Request::new(outbound)).await?;
@@ -48,6 +34,21 @@ pub async fn listen(
             )),
         })
         .await;
+
+    tokio::spawn(async move {
+        let mut interval = time::interval(Duration::from_secs(3));
+        while let time = interval.tick().await {
+            println!("Sending a heartbeat = {:?}", time);
+
+            sender
+                .send(proto::ClientToServerMessage {
+                    one_of: Some(proto::client_to_server_message::OneOf::Heartbeat(
+                        proto::Heartbeat {},
+                    )),
+                })
+                .await;
+        }
+    });
 
     while let Some(note) = inbound.message().await? {
         println!("NOTE = {:?}", note);

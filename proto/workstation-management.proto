@@ -38,6 +38,9 @@ message RunTaskReply
     optional string error = 1;
 }
 
+message Heartbeat
+{ }
+
 message ClientToServerMessage
 {
     oneof one_of
@@ -46,6 +49,8 @@ message ClientToServerMessage
 
         StartApplicationReply start_application_reply = 2;
         RunTaskReply run_task_reply                   = 3;
+
+        Heartbeat heartbeat = 4;
     }
 }
 
@@ -57,6 +62,8 @@ message ServerToClientMessage
 
         StartApplicationRequest start_application_request = 2;
         RunTaskRequest run_task_request                   = 3;
+
+        Heartbeat heartbeat = 4;
     }
 }
 
