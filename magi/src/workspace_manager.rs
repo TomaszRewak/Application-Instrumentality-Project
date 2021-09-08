@@ -8,16 +8,13 @@ pub async fn listen(
     client: &mut proto::workspace_manager_client::WorkspaceManagerClient<Channel>,
 ) -> Result<(), Box<dyn Error>> {
     let start = time::Instant::now();
+    let (sender, receiver) = async_channel::unbounded();
 
     let outbound = async_stream::stream! {
-        let hostname = match gethostname::gethostname().to_str() {
-            Some(str) => Some(String::from(str)),
-            None => None
-        };
-
-        println!("Sending login request {:?}", hostname);
-
-        yield proto::ClientToServerMessage{ one_of: Some(proto::client_to_server_message::OneOf::LoginRequest(proto::LoginRequest{hostname: hostname})) };
+        
+        while let Ok(message) = receiver.recv().await {
+            yield message;
+        }
 
         // let mut interval = time::interval(Duration::from_secs(1));
         // while let time = interval.tick().await {
@@ -36,6 +33,21 @@ pub async fn listen(
 
     let response = client.listen(Request::new(outbound)).await?;
     let mut inbound = response.into_inner();
+
+    let hostname = match gethostname::gethostname().to_str() {
+        Some(str) => Some(String::from(str)),
+        None => None,
+    };
+
+    println!("Sending login request {:?}", hostname);
+
+    sender
+        .send(proto::ClientToServerMessage {
+            one_of: Some(proto::client_to_server_message::OneOf::LoginRequest(
+                proto::LoginRequest { hostname: hostname },
+            )),
+        })
+        .await;
 
     while let Some(note) = inbound.message().await? {
         println!("NOTE = {:?}", note);
