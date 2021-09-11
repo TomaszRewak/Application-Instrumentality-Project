@@ -1,16 +1,16 @@
 mod application;
 mod instance;
 mod proto;
-mod workspace_manager;
+mod workstation_manager;
 
 use application::Application;
-use proto::workspace_manager_client::WorkspaceManagerClient;
+use proto::client_server::workstation_manager_client::WorkstationManagerClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = WorkspaceManagerClient::connect("http://[::1]:5122").await?;
+    let mut client = WorkstationManagerClient::connect("http://[::1]:5122").await?;
 
-    workspace_manager::listen(&mut client).await?;
+    workstation_manager::listen(&mut client).await?;
 
     Ok(())
 

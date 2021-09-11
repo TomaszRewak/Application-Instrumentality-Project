@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package workstation_management.client_server;
+
+import "workstation_management.proto";
+
+message ClientToServerMessage
+{
+    oneof one_of
+    {
+        LoginRequest login_request = 1;
+
+        StartApplicationReply start_application_reply = 2;
+        RunTaskReply run_task_reply                   = 3;
+
+        Heartbeat heartbeat = 4;
+    }
+}
+
+message ServerToClientMessage
+{
+    oneof one_of
+    {
+        LoginReply login_reply = 1;
+
+        StartApplicationRequest start_application_request = 2;
+        RunTaskRequest run_task_request                   = 3;
+
+        Heartbeat heartbeat = 4;
+    }
+}
+
+service WorkstationManager
+{
+    rpc Listen(stream ClientToServerMessage) returns (stream ServerToClientMessage);
+}

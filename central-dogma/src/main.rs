@@ -1,19 +1,19 @@
 mod proto;
-mod workspace_manager;
+mod workstation_manager;
 mod workstation;
 
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
-use proto::workspace_manager_server::WorkspaceManagerServer;
+use proto::client_server::workstation_manager_server::WorkstationManagerServer;
 use tonic::transport::Server;
-use workspace_manager::WorkspaceManager;
+use workstation_manager::WorkstationManager;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let management_address = "[::1]:5122".parse().unwrap();
-    let workspace_manager = WorkspaceManager::new();
+    let workstation_manager = WorkstationManager::new();
 
     Server::builder()
-        .add_service(WorkspaceManagerServer::new(workspace_manager))
+        .add_service(WorkstationManagerServer::new(workstation_manager))
         .serve(management_address)
         .await
         .unwrap();

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package workstation_management.local_management;
+
+import "workstation_management.proto";
+
+message Request
+{
+    oneof one_of
+    {
+        StartApplicationRequest start_application_request = 1;
+        RunTaskRequest run_task_request                   = 2;
+    }
+}
+
+message Reply
+{
+    oneof one_of
+    {
+        StartApplicationReply start_application_reply = 1;
+        RunTaskReply run_task_reply                   = 2;
+    }
+}

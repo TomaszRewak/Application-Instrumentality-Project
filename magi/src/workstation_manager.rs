@@ -6,7 +6,7 @@ use tonic::transport::Channel;
 use tonic::Request;
 
 pub async fn listen(
-    client: &mut proto::workspace_manager_client::WorkspaceManagerClient<Channel>,
+    client: &mut proto::client_server::workstation_manager_client::WorkstationManagerClient<Channel>,
 ) -> Result<(), Box<dyn Error>> {
     let start = time::Instant::now();
     let (sender, receiver) = async_channel::unbounded();
@@ -28,8 +28,8 @@ pub async fn listen(
     println!("Sending login request {:?}", hostname);
 
     sender
-        .send(proto::ClientToServerMessage {
-            one_of: Some(proto::client_to_server_message::OneOf::LoginRequest(
+        .send(proto::client_server::ClientToServerMessage {
+            one_of: Some(proto::client_server::client_to_server_message::OneOf::LoginRequest(
                 proto::LoginRequest { hostname: hostname },
             )),
         })
@@ -41,8 +41,8 @@ pub async fn listen(
             println!("Sending a heartbeat = {:?}", time);
 
             sender
-                .send(proto::ClientToServerMessage {
-                    one_of: Some(proto::client_to_server_message::OneOf::Heartbeat(
+                .send(proto::client_server::ClientToServerMessage {
+                    one_of: Some(proto::client_server::client_to_server_message::OneOf::Heartbeat(
                         proto::Heartbeat {},
                     )),
                 })

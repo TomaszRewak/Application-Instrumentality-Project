@@ -6,31 +6,31 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tonic::{Request, Response, Status, Streaming};
 
-pub struct WorkspaceManager {
+pub struct WorkstationManager {
     workstations: Vec<Arc<Mutex<Workstation>>>,
 }
 
-impl WorkspaceManager {
-    pub fn new() -> WorkspaceManager {
-        let workspace_manager = WorkspaceManager {
+impl WorkstationManager {
+    pub fn new() -> WorkstationManager {
+        let workstation_manager = WorkstationManager {
             workstations: vec![],
         };
 
-        workspace_manager
+        workstation_manager
     }
 }
 
 #[tonic::async_trait]
-impl proto::workspace_manager_server::WorkspaceManager for WorkspaceManager {
+impl proto::client_server::workstation_manager_server::WorkstationManager for WorkstationManager {
     type ListenStream = Pin<
         Box<
-            dyn Stream<Item = Result<proto::ServerToClientMessage, Status>> + Send + Sync + 'static,
+            dyn Stream<Item = Result<proto::client_server::ServerToClientMessage, Status>> + Send + Sync + 'static,
         >,
     >;
 
     async fn listen(
         &self,
-        request: Request<Streaming<proto::ClientToServerMessage>>,
+        request: Request<Streaming<proto::client_server::ClientToServerMessage>>,
     ) -> Result<Response<Self::ListenStream>, Status> {
         let stream = request.into_inner();
         let (sender, receiver) = async_channel::unbounded();
