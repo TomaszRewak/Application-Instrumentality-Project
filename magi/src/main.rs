@@ -3,13 +3,33 @@ mod instance;
 mod proto;
 mod workstation_manager;
 
+use std::io::Read;
+use prost::Message;
+use tokio::time::sleep;
+use tokio::time::Duration;
+use mio::windows::NamedPipe;
 use application::Application;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = WorkstationManagerClient::connect("http://[::1]:5122").await?;
+    tokio::spawn(async move {
+        println!("Trying to create a named pipe");
+        let mut named_pipe = NamedPipe::new(r"\\.\pipe\magi-workspace-manager").unwrap();
+        println!("Created named pipe");
 
+        let mut buffer = [0u8; 1000];
+
+        named_pipe.read(&mut buffer);
+
+        //named_pipe.
+
+        proto::local_management::Request::decode_length_delimited(buffer);
+
+        sleep(Duration::from_millis(5000)).await;
+    });
+
+    let mut client = WorkstationManagerClient::connect("http://[::1]:5122").await?;
     workstation_manager::listen(&mut client).await?;
 
     Ok(())
