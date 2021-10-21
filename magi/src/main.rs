@@ -2,6 +2,7 @@ mod application;
 mod instance;
 mod proto;
 mod workstation_manager;
+mod message_buffer;
 
 use application::Application;
 use bytes::Buf;
@@ -13,6 +14,8 @@ use std::io::Read;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
+use crate::message_buffer::MessageBuffer;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(async move {
@@ -20,13 +23,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut named_pipe = NamedPipe::new(r"\\.\pipe\magi-workspace-manager").unwrap();
         println!("Created named pipe");
 
+        let mut message_buffer = MessageBuffer::new();
         let mut buffer = BytesMut::with_capacity(1024);
         let mut next_message_length: usize = 0;
         let mut is_next_message_length_complete = false;
         let mut number_of_next_message_length_chunks = 0;
 
         loop {
-            named_pipe.read(&mut buffer);
+            named_pipe.read(&mut buffer).unwrap();
 
             if !is_next_message_length_complete && !buffer.is_empty() {
                 let message_size_chunk = buffer.get_u8() as usize;
@@ -45,11 +49,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if is_next_message_length_complete && buffer.len() == next_message_length {
                 let mut sub_buffer = buffer.take(next_message_length);
 
-                proto::local_management::Request::decode(&mut sub_buffer);
+                proto::local_management::Request::decode(&mut sub_buffer).unwrap();
 
                 buffer = sub_buffer.into_inner();
             }
-
 
             sleep(Duration::from_millis(1000)).await;
         }
