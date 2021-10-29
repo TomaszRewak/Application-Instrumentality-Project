@@ -30,6 +30,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut number_of_next_message_length_chunks = 0;
 
         loop {
+            message_buffer.read(&mut named_pipe);
+
+
+
+            
+
             named_pipe.read(&mut buffer).unwrap();
 
             if !is_next_message_length_complete && !buffer.is_empty() {
