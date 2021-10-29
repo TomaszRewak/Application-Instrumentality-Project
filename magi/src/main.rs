@@ -24,41 +24,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Created named pipe");
 
         let mut message_buffer = MessageBuffer::new();
-        let mut buffer = BytesMut::with_capacity(1024);
-        let mut next_message_length: usize = 0;
-        let mut is_next_message_length_complete = false;
-        let mut number_of_next_message_length_chunks = 0;
 
         loop {
             message_buffer.read(&mut named_pipe);
 
-
-
-            
-
-            named_pipe.read(&mut buffer).unwrap();
-
-            if !is_next_message_length_complete && !buffer.is_empty() {
-                let message_size_chunk = buffer.get_u8() as usize;
-
-                next_message_length = next_message_length
-                    | ((message_size_chunk & 0b0111_1111)
-                        << (number_of_next_message_length_chunks * 7));
-
-                if message_size_chunk & 0b1000_0000 != 0 {
-                    is_next_message_length_complete = true;
-                }
-
-                number_of_next_message_length_chunks += 1;
-            }
-
-            if is_next_message_length_complete && buffer.len() == next_message_length {
-                let mut sub_buffer = buffer.take(next_message_length);
-
-                proto::local_management::Request::decode(&mut sub_buffer).unwrap();
-
-                buffer = sub_buffer.into_inner();
-            }
+            let message: Option<proto::local_management::Request> = message_buffer.decode();
 
             sleep(Duration::from_millis(1000)).await;
         }
