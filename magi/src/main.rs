@@ -18,6 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(async move {
         println!("Trying to create a named pipe");
         let mut named_pipe = NamedPipe::new(r"\\.\pipe\magi-workspace-manager").unwrap();
+        named_pipe.connect();
         println!("Created named pipe");
 
         let mut message_read_buffer = MessageReadBuffer::new();
