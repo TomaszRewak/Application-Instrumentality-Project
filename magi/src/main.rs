@@ -1,20 +1,17 @@
 mod application;
 mod instance;
+mod message_read_buffer;
+mod message_write_buffer;
 mod proto;
 mod workstation_manager;
-mod message_buffer;
 
-use application::Application;
-use bytes::Buf;
-use bytes::BytesMut;
 use mio::windows::NamedPipe;
-use prost::Message;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
-use std::io::Read;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
-use crate::message_buffer::MessageBuffer;
+use crate::message_read_buffer::MessageReadBuffer;
+use crate::message_write_buffer::MessageWriteBuffer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -23,12 +20,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut named_pipe = NamedPipe::new(r"\\.\pipe\magi-workspace-manager").unwrap();
         println!("Created named pipe");
 
-        let mut message_buffer = MessageBuffer::new();
+        let mut message_read_buffer = MessageReadBuffer::new();
+        let mut message_write_buffer = MessageWriteBuffer::new();
 
         loop {
-            message_buffer.read(&mut named_pipe);
+            message_read_buffer.read(&mut named_pipe);
 
-            let message: Option<proto::local_management::Request> = message_buffer.decode();
+            if let Some(request) = message_read_buffer.decode::<proto::local_management::Request>()
+            {
+                match request.one_of {
+                    Some(proto::local_management::request::OneOf::StartApplicationRequest(
+                        start_application_request,
+                    )) => {
+                        message_write_buffer.encode(&proto::local_management::Reply {
+                            one_of: Some(
+                                proto::local_management::reply::OneOf::StartApplicationReply(
+                                    proto::StartApplicationReply { error: None },
+                                ),
+                            ),
+                        });
+                    }
+                    Some(proto::local_management::request::OneOf::RunTaskRequest(
+                        run_task_request,
+                    )) => message_write_buffer.encode(&proto::local_management::Reply {
+                        one_of: Some(proto::local_management::reply::OneOf::RunTaskReply(
+                            proto::RunTaskReply { error: Some("Some error".to_string()) },
+                        )),
+                    }),
+                    None => todo!(),
+                };
+            }
+
+            message_write_buffer.write(&mut named_pipe);
 
             sleep(Duration::from_millis(1000)).await;
         }

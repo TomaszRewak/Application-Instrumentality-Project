@@ -1,21 +1,18 @@
-use std::{borrow::Borrow, io::Read};
-
 use bytes::{Buf, BytesMut};
 use prost::Message;
+use std::io::Read;
 
-pub struct MessageBuffer {
+pub struct MessageReadBuffer {
     buffer: Option<BytesMut>,
 
-    // let mut message_buffer = MessageBuffer::new();
-    // let mut buffer = BytesMut::with_capacity(1024);
     next_message_length: usize,
     is_next_message_length_complete: bool,
     number_of_next_message_length_chunks: usize,
 }
 
-impl MessageBuffer {
-    pub fn new() -> MessageBuffer {
-        MessageBuffer {
+impl MessageReadBuffer {
+    pub fn new() -> MessageReadBuffer {
+        MessageReadBuffer {
             buffer: Some(BytesMut::with_capacity(1024)),
             next_message_length: 0,
             is_next_message_length_complete: false,
@@ -27,12 +24,11 @@ impl MessageBuffer {
         let mut buffer = self.buffer.take().unwrap();
 
         source.read(&mut buffer).unwrap();
-        
+
         self.buffer = Some(buffer);
     }
 
     pub fn decode<T: Message + Default>(&mut self) -> Option<T> {
-
         self.process_message_size();
         self.process_message()
     }
@@ -57,20 +53,18 @@ impl MessageBuffer {
         self.buffer = Some(buffer);
     }
 
-    fn process_message<T: Message + Default>(&mut self) -> Option<T>
-    {
+    fn process_message<T: Message + Default>(&mut self) -> Option<T> {
         let buffer = self.buffer.take().unwrap();
 
-        if !self.is_next_message_length_complete || buffer.len() < self.next_message_length
-        {
+        if !self.is_next_message_length_complete || buffer.len() < self.next_message_length {
             self.buffer = Some(buffer);
-            return None
+            return None;
         }
 
         let mut sub_buffer = buffer.take(self.next_message_length);
         let message = T::decode(&mut sub_buffer).unwrap();
         self.buffer = Some(sub_buffer.into_inner());
-        
+
         Some(message)
     }
 }

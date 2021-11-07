@@ -1,5 +1,7 @@
+use mio::windows::NamedPipe;
+
 mod proto;
 
 fn main() {
-    println!("test");
+    NamedPipe::connect()
 }
