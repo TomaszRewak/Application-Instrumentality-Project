@@ -16,6 +16,7 @@ gethostname = "0.2"
 async-channel = "1.6"
 mio = "0.7"
 bytes = "1.1"
+common = { path = "../common" }
 
 [build-dependencies]
 tonic-build = "0.5"

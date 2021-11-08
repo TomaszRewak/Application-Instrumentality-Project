@@ -3,5 +3,6 @@
 members = [
     "magi",
     "central-dogma",
-    "ritsuko"
+    "ritsuko",
+    "common"
 ]

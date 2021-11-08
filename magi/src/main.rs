@@ -1,17 +1,14 @@
 mod application;
 mod instance;
-mod message_read_buffer;
-mod message_write_buffer;
 mod proto;
 mod workstation_manager;
 
+use common::MessageReadBuffer;
+use common::MessageWriteBuffer;
 use mio::windows::NamedPipe;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
 use tokio::time::sleep;
 use tokio::time::Duration;
-
-use crate::message_read_buffer::MessageReadBuffer;
-use crate::message_write_buffer::MessageWriteBuffer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -45,7 +42,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         run_task_request,
                     )) => message_write_buffer.encode(&proto::local_management::Reply {
                         one_of: Some(proto::local_management::reply::OneOf::RunTaskReply(
-                            proto::RunTaskReply { error: Some("Some error".to_string()) },
+                            proto::RunTaskReply {
+                                error: Some("Some error".to_string()),
+                            },
                         )),
                     }),
                     None => todo!(),
