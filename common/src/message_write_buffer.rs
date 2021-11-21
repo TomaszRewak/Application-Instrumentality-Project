@@ -28,7 +28,10 @@ impl MessageWriteBuffer {
 
         match result {
             Ok(size) => buffer.advance(size),
-            Err(_) => todo!(),
+            Err(_) => {
+                result.unwrap();
+                todo!()
+            }
         }
 
         self.buffer = Some(buffer);

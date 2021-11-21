@@ -30,6 +30,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     Some(proto::local_management::request::OneOf::StartApplicationRequest(
                         start_application_request,
                     )) => {
+                        println!(
+                            "LOCAL: start application request: {:?}",
+                            start_application_request
+                        );
+
                         message_write_buffer.encode(&proto::local_management::Reply {
                             one_of: Some(
                                 proto::local_management::reply::OneOf::StartApplicationReply(
@@ -40,13 +45,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     Some(proto::local_management::request::OneOf::RunTaskRequest(
                         run_task_request,
-                    )) => message_write_buffer.encode(&proto::local_management::Reply {
-                        one_of: Some(proto::local_management::reply::OneOf::RunTaskReply(
-                            proto::RunTaskReply {
-                                error: Some("Some error".to_string()),
-                            },
-                        )),
-                    }),
+                    )) => {
+                        println!("LOCAL: run task request: {:?}", run_task_request);
+
+                        message_write_buffer.encode(&proto::local_management::Reply {
+                            one_of: Some(proto::local_management::reply::OneOf::RunTaskReply(
+                                proto::RunTaskReply {
+                                    error: Some("Some error".to_string()),
+                                },
+                            )),
+                        });
+                    }
                     None => todo!(),
                 };
             }

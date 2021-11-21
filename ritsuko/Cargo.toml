@@ -11,6 +11,7 @@ tonic = "0.5"
 prost = "0.8"
 mio = "0.7"
 common = { path = "../common" }
+named_pipe = "0.4.1"
 
 [build-dependencies]
 tonic-build = "0.5"
