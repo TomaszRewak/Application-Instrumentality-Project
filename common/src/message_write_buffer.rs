@@ -24,13 +24,18 @@ impl MessageWriteBuffer {
     pub fn write(&mut self, target: &mut impl Write) {
         let mut buffer = self.buffer.take().unwrap();
 
-        let result = target.write(&mut buffer);
+        if buffer.len() > 0 {
+            let result = target.write(&mut buffer);
 
-        match result {
-            Ok(size) => buffer.advance(size),
-            Err(_) => {
-                result.unwrap();
-                todo!()
+            match result {
+                Ok(size) =>
+                { 
+                    println!("Sent {} bytes", {size});
+                    buffer.advance(size)
+                }
+                Err(_) => {
+                    result.unwrap();
+                }
             }
         }
 

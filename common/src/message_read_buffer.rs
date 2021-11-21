@@ -23,7 +23,15 @@ impl MessageReadBuffer {
     pub fn read(&mut self, source: &mut impl Read) {
         let mut buffer = self.buffer.take().unwrap();
 
-        source.read(&mut buffer).unwrap();
+        println!("Old buffer length: {} bytes", buffer.len());
+
+        match source.read(&mut buffer)
+        {
+            Ok(size) => println!("Read {} bytes", size),
+            Err(error) => println!("Error: {}", error)
+        }
+
+        println!("New buffer length: {} bytes", buffer.len());
 
         self.buffer = Some(buffer);
     }

@@ -8,6 +8,8 @@ fn main() {
     thread::sleep(time::Duration::from_secs(2));
 
     let mut named_pipe = PipeClient::connect_ms(r"\\.\pipe\magi-workspace-manager", 2000).unwrap();
+    named_pipe.set_write_timeout(Some(time::Duration::from_secs(5)));
+    named_pipe.set_read_timeout(Some(time::Duration::from_secs(5)));
     let mut message_write_buffer = MessageWriteBuffer::new();
 
     message_write_buffer.encode(&proto::local_management::Request {
@@ -26,4 +28,8 @@ fn main() {
     message_write_buffer.write(&mut named_pipe);
 
     println!("End");
+    thread::sleep(time::Duration::from_secs(10));
+    println!("Exit");
+
+    println!("timeout: {:?}", named_pipe.get_write_timeout());
 }

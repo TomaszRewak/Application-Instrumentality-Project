@@ -17,6 +17,7 @@ async-channel = "1.6"
 mio = "0.7"
 bytes = "1.1"
 common = { path = "../common" }
+named_pipe = "0.4.1"
 
 [build-dependencies]
 tonic-build = "0.5"

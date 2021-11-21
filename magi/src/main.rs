@@ -5,17 +5,22 @@ mod workstation_manager;
 
 use common::MessageReadBuffer;
 use common::MessageWriteBuffer;
-use mio::windows::NamedPipe;
+use named_pipe::PipeOptions;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
+use std::time;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(async move {
+        let pipe_options = PipeOptions::new(r"\\.\pipe\magi-workspace-manager");
+        let pipe_server = pipe_options.single().unwrap();
+
         println!("Trying to create a named pipe");
-        let mut named_pipe = NamedPipe::new(r"\\.\pipe\magi-workspace-manager").unwrap();
-        named_pipe.connect();
+        let mut named_pipe = pipe_server.wait().unwrap();
+        named_pipe.set_write_timeout(Some(time::Duration::from_secs(5)));
+        named_pipe.set_read_timeout(Some(time::Duration::from_secs(5)));
         println!("Created named pipe");
 
         let mut message_read_buffer = MessageReadBuffer::new();
