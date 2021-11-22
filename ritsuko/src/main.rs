@@ -1,15 +1,13 @@
 use common::MessageWriteBuffer;
 use named_pipe::PipeClient;
-use std::{thread, time};
+use std::{io::{Read, Write}, thread, time};
 
 mod proto;
 
 fn main() {
     thread::sleep(time::Duration::from_secs(2));
 
-    let mut named_pipe = PipeClient::connect_ms(r"\\.\pipe\magi-workspace-manager", 2000).unwrap();
-    named_pipe.set_write_timeout(Some(time::Duration::from_secs(5)));
-    named_pipe.set_read_timeout(Some(time::Duration::from_secs(5)));
+    let mut named_pipe = PipeClient::connect(r"\\.\pipe\magi-workspace-manager").unwrap();
     let mut message_write_buffer = MessageWriteBuffer::new();
 
     message_write_buffer.encode(&proto::local_management::Request {

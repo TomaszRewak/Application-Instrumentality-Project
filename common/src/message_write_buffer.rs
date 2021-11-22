@@ -30,8 +30,8 @@ impl MessageWriteBuffer {
             match result {
                 Ok(size) =>
                 { 
-                    println!("Sent {} bytes", {size});
-                    buffer.advance(size)
+                    buffer.advance(size);
+                    println!("Sent {} bytes, {} bytes left", size, buffer.len());
                 }
                 Err(_) => {
                     result.unwrap();

@@ -1,4 +1,4 @@
-use bytes::{Buf, BytesMut};
+use bytes::{Buf, BufMut, BytesMut};
 use prost::Message;
 use std::io::Read;
 
@@ -25,10 +25,13 @@ impl MessageReadBuffer {
 
         println!("Old buffer length: {} bytes", buffer.len());
 
-        match source.read(&mut buffer)
-        {
-            Ok(size) => println!("Read {} bytes", size),
-            Err(error) => println!("Error: {}", error)
+        let mut buf = [0; 1024]; // TODO: replace or move to the class definition
+        match source.read(&mut buf) {
+            Ok(size) => {
+                buffer.put(buf.get(0..size).unwrap());
+                println!("Read {} bytes", size)
+            }
+            Err(error) => println!("Error: {}", error),
         }
 
         println!("New buffer length: {} bytes", buffer.len());
@@ -51,10 +54,7 @@ impl MessageReadBuffer {
                 | ((message_size_chunk & 0b0111_1111)
                     << (self.number_of_next_message_length_chunks * 7));
 
-            if message_size_chunk & 0b1000_0000 != 0 {
-                self.is_next_message_length_complete = true;
-            }
-
+            self.is_next_message_length_complete = message_size_chunk & 0b1000_0000 == 0;
             self.number_of_next_message_length_chunks += 1;
         }
 
@@ -72,6 +72,9 @@ impl MessageReadBuffer {
         let mut sub_buffer = buffer.take(self.next_message_length);
         let message = T::decode(&mut sub_buffer).unwrap();
         self.buffer = Some(sub_buffer.into_inner());
+        self.next_message_length = 0;
+        self.is_next_message_length_complete = false;
+        self.number_of_next_message_length_chunks = 0;
 
         Some(message)
     }
