@@ -7,12 +7,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tonic = "0.5"
-prost = "0.8"
-mio = "0.7"
+tonic = "0.6.2"
+prost = "0.9.0"
+mio = "0.8.0"
 common = { path = "../common" }
 named_pipe = "0.4.1"
 clap = "2.34.0"
 
 [build-dependencies]
-tonic-build = "0.5"
+tonic-build = "0.6.2"

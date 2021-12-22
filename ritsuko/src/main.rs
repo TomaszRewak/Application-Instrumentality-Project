@@ -12,7 +12,7 @@ fn send(request: &proto::local_management::Request) {
         thread::sleep(time::Duration::from_secs(1));
     }
 
-    let mut named_pipe = PipeClient::connect(pipe_path).unwrap();
+    let mut named_pipe = PipeClient::connect_ms(pipe_path, 1000).unwrap();
     let mut message_write_buffer = MessageWriteBuffer::new();
 
     message_write_buffer.encode(request);
