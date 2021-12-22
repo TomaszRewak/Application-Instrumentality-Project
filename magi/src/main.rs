@@ -13,6 +13,8 @@ use std::time;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
+use crate::instance::Instance;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::spawn(async move {
@@ -39,6 +41,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             "LOCAL: start application request: {:?}",
                             start_application_request
                         );
+
+                        let mut instance = Instance::new("some new instance".to_string());
+                        instance.start(&start_application_request.application_name.unwrap(), &start_application_request.args.unwrap_or_default());
 
                         message_write_buffer.encode(&proto::local_management::Reply {
                             one_of: Some(

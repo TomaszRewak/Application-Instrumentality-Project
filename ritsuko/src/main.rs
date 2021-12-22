@@ -8,11 +8,7 @@ mod proto;
 fn send(request: &proto::local_management::Request) {
     let pipe_path = Path::new(r"\\.\pipe\magi-workspace-manager");
 
-    if !pipe_path.exists() {
-        thread::sleep(time::Duration::from_secs(1));
-    }
-
-    let mut named_pipe = PipeClient::connect_ms(pipe_path, 1000).unwrap();
+    let mut named_pipe = PipeClient::connect(pipe_path).unwrap();
     let mut message_write_buffer = MessageWriteBuffer::new();
 
     message_write_buffer.encode(request);
