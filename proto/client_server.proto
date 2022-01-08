@@ -4,13 +4,26 @@ package workstation_management.client_server;
 
 import "workstation_management.proto";
 
+message LoginRequest
+{
+    optional string hostname = 1;
+}
+
+message LoginReply
+{
+    optional string error = 1;
+}
+
+message Heartbeat
+{ }
+
 message ClientToServerMessage
 {
     oneof one_of
     {
         LoginRequest login_request = 1;
 
-        StartApplicationReply start_application_reply = 2;
+        CreateInstanceRequest create_instance_request = 2;
         RunTaskReply run_task_reply                   = 3;
 
         Heartbeat heartbeat = 4;
@@ -23,8 +36,8 @@ message ServerToClientMessage
     {
         LoginReply login_reply = 1;
 
-        StartApplicationRequest start_application_request = 2;
-        RunTaskRequest run_task_request                   = 3;
+        CreateInstanceReply create_instance_reply = 2;
+        RunTaskRequest run_task_request           = 3;
 
         Heartbeat heartbeat = 4;
     }

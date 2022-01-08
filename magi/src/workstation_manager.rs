@@ -30,7 +30,7 @@ pub async fn listen(
     sender
         .send(proto::client_server::ClientToServerMessage {
             one_of: Some(proto::client_server::client_to_server_message::OneOf::LoginRequest(
-                proto::LoginRequest { hostname: hostname },
+                proto::client_server::LoginRequest { hostname: hostname },
             )),
         })
         .await;
@@ -43,7 +43,7 @@ pub async fn listen(
             sender
                 .send(proto::client_server::ClientToServerMessage {
                     one_of: Some(proto::client_server::client_to_server_message::OneOf::Heartbeat(
-                        proto::Heartbeat {},
+                        proto::client_server::Heartbeat {},
                     )),
                 })
                 .await;

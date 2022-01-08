@@ -6,18 +6,26 @@ import "workstation_management.proto";
 
 message Request
 {
+    optional int32 request_id = 1;
+
     oneof one_of
     {
-        StartApplicationRequest start_application_request = 1;
-        RunTaskRequest run_task_request                   = 2;
+        CreateInstanceRequest create_instance_request = 2;
+        StartInstanceRequest start_instance_request   = 3;
+        StopInstanceRequest stop_instance_request     = 4;
+        RunTaskRequest run_task_request               = 5;
     }
 }
 
 message Reply
 {
+    optional int32 request_id = 1;
+
     oneof one_of
     {
-        StartApplicationReply start_application_reply = 1;
-        RunTaskReply run_task_reply                   = 2;
+        CreateInstanceReply create_instance_reply = 2;
+        StartInstanceReply start_instance_reply   = 3;
+        StopInstanceReply stop_insntace_reply     = 4;
+        RunTaskReply run_task_reply               = 5;
     }
 }

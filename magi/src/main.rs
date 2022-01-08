@@ -3,20 +3,28 @@ mod instance;
 mod proto;
 mod workstation_manager;
 
+use application::Application;
 use common::MessageReadBuffer;
 use common::MessageWriteBuffer;
 use named_pipe::PipeOptions;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
-use std::io::Read;
-use std::io::Write;
-use std::time;
+use std::collections::HashMap;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
-use crate::instance::Instance;
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut applications = HashMap::from([
+        (
+            String::from("notepad"),
+            Application::new("notepad.exe".to_string(), "".to_string()),
+        ),
+        (
+            String::from("cmd"),
+            Application::new("cmd.exe".to_string(), "".to_string()),
+        ),
+    ]);
+
     tokio::spawn(async move {
         let pipe_options = PipeOptions::new(r"\\.\pipe\magi-workspace-manager");
         let pipe_server = pipe_options.single().unwrap();
@@ -34,21 +42,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some(request) = message_read_buffer.decode::<proto::local_management::Request>()
             {
                 match request.one_of {
-                    Some(proto::local_management::request::OneOf::StartApplicationRequest(
-                        start_application_request,
+                    Some(proto::local_management::request::OneOf::StartInstanceRequest(
+                        start_insntace_request,
                     )) => {
                         println!(
                             "LOCAL: start application request: {:?}",
-                            start_application_request
+                            start_insntace_request
                         );
 
-                        let mut instance = Instance::new("some new instance".to_string());
-                        instance.start(&start_application_request.application_name.unwrap(), &start_application_request.args.unwrap_or_default());
+                        let application =
+                            applications.get_mut(&start_insntace_request.application_name.unwrap());
+
+                        let error = match application {
+                            Some(application) => {
+                                let instance_name = start_insntace_request.instance_name.unwrap();
+
+                                application.add_instance(instance_name.clone());
+                                application.start(instance_name.clone());
+
+                                None
+                            }
+                            None => {
+                                Some(String::from("Application not found"))
+                            }
+                        };
 
                         message_write_buffer.encode(&proto::local_management::Reply {
+                            request_id: None,
                             one_of: Some(
-                                proto::local_management::reply::OneOf::StartApplicationReply(
-                                    proto::StartApplicationReply { error: None },
+                                proto::local_management::reply::OneOf::CreateInstanceReply(
+                                    proto::CreateInstanceReply { error: error },
                                 ),
                             ),
                         });
@@ -59,6 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         println!("LOCAL: run task request: {:?}", run_task_request);
 
                         message_write_buffer.encode(&proto::local_management::Reply {
+                            request_id: None,
                             one_of: Some(proto::local_management::reply::OneOf::RunTaskReply(
                                 proto::RunTaskReply {
                                     error: Some("Some error".to_string()),
@@ -66,7 +90,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             )),
                         });
                     }
-                    None => todo!(),
+                    _ => todo!(),
                 };
             }
 

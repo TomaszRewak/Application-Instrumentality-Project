@@ -1,8 +1,6 @@
 use super::instance::Instance;
 
 pub struct Application {
-    name: String,
-
     path: String,
     args: String,
 
@@ -10,9 +8,8 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(name: String, path: String, args: String) -> Application {
+    pub fn new(path: String, args: String) -> Application {
         Application {
-            name: name,
             path: path,
             args: args,
             instances: Vec::new(),
@@ -23,7 +20,7 @@ impl Application {
         self.instances.push(Instance::new(name));
     }
 
-    pub fn start(&mut self, instance_name: &str) {
+    pub fn start(&mut self, instance_name: String) {
         if let Some(instance) = self.instances.first_mut() {
             instance.start(&self.path, &self.args);
         }
