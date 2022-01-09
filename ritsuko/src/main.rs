@@ -1,7 +1,7 @@
 use clap::App;
 use common::MessageWriteBuffer;
 use named_pipe::PipeClient;
-use std::path::Path;
+use std::{path::Path, thread, time::Duration};
 
 mod proto;
 
@@ -87,4 +87,6 @@ fn main() {
             ),
         );
     }
+
+    thread::sleep(Duration::from_secs(10));
 }
