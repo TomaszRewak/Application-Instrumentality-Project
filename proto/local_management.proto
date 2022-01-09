@@ -6,20 +6,21 @@ import "workstation_management.proto";
 
 message Request
 {
-    optional int32 request_id = 1;
+    optional uint32 request_id = 1;
+    optional bool keep_alive  = 2;
 
     oneof one_of
     {
-        CreateInstanceRequest create_instance_request = 2;
-        StartInstanceRequest start_instance_request   = 3;
-        StopInstanceRequest stop_instance_request     = 4;
-        RunTaskRequest run_task_request               = 5;
+        CreateInstanceRequest create_instance_request = 3;
+        StartInstanceRequest start_instance_request   = 4;
+        StopInstanceRequest stop_instance_request     = 5;
+        RunTaskRequest run_task_request               = 6;
     }
 }
 
 message Reply
 {
-    optional int32 request_id = 1;
+    optional uint32 request_id = 1;
 
     oneof one_of
     {

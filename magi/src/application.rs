@@ -20,7 +20,7 @@ impl Application {
         self.instances.push(Instance::new(name));
     }
 
-    pub fn start(&mut self, instance_name: String) {
+    pub fn start_instnace(&mut self, name: String) {
         if let Some(instance) = self.instances.first_mut() {
             instance.start(&self.path, &self.args);
         }

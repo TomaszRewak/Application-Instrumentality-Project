@@ -8,9 +8,11 @@ use common::MessageReadBuffer;
 use common::MessageWriteBuffer;
 use named_pipe::PipeOptions;
 use proto::client_server::workstation_manager_client::WorkstationManagerClient;
+use tonic::codegen::http::request;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::time::SystemTime;
 use tokio::time::sleep;
 use tokio::time::Duration;
 
@@ -47,8 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut applications = applications.clone();
 
             tokio::spawn(async move {
+                let pipe_lifespan = Duration::from_secs(5);
+
                 let mut message_read_buffer = MessageReadBuffer::new();
                 let mut message_write_buffer = MessageWriteBuffer::new();
+                let mut destroy_after = Some(SystemTime::now() + pipe_lifespan);
 
                 loop {
                     message_read_buffer.read(&mut named_pipe);
@@ -56,29 +61,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if let Some(request) =
                         message_read_buffer.decode::<proto::local_management::Request>()
                     {
+                        println!("LOCAL: {:?}", request);
+
+                        if request.keep_alive() {
+                            destroy_after = Some(SystemTime::now() + pipe_lifespan);
+                        } else {
+                            destroy_after = None;
+                        }
+
                         match request.one_of {
                             Some(
-                                proto::local_management::request::OneOf::StartInstanceRequest(
-                                    start_insntace_request,
+                                proto::local_management::request::OneOf::CreateInstanceRequest(
+                                    create_instance_request,
                                 ),
                             ) => {
-                                println!(
-                                    "LOCAL: start instance request: {:?}",
-                                    start_insntace_request
-                                );
-
                                 let mut applications = applications.lock().unwrap();
 
                                 let application = applications
-                                    .get_mut(&start_insntace_request.application_name.unwrap());
+                                    .get_mut(&create_instance_request.application_name.unwrap());
 
                                 let error = match application {
                                     Some(application) => {
-                                        let instance_name =
-                                            start_insntace_request.instance_name.unwrap();
-
-                                        application.add_instance(instance_name.clone());
-                                        application.start(instance_name.clone());
+                                        application.add_instance(
+                                            create_instance_request.instance_name.unwrap(),
+                                        );
 
                                         None
                                     }
@@ -86,10 +92,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 };
 
                                 message_write_buffer.encode(&proto::local_management::Reply {
-                                    request_id: None,
+                                    request_id: request.request_id,
                                     one_of: Some(
                                         proto::local_management::reply::OneOf::CreateInstanceReply(
                                             proto::CreateInstanceReply { error: error },
+                                        ),
+                                    ),
+                                });
+                            }
+                            Some(
+                                proto::local_management::request::OneOf::StartInstanceRequest(
+                                    start_insntace_request,
+                                ),
+                            ) => {
+                                let mut applications = applications.lock().unwrap();
+
+                                let application = applications
+                                    .get_mut(&start_insntace_request.application_name.unwrap());
+
+                                let error = match application {
+                                    Some(application) => {
+                                        application.start_instnace(
+                                            start_insntace_request.instance_name.unwrap(),
+                                        );
+
+                                        None
+                                    }
+                                    None => Some(String::from("Application not found")),
+                                };
+
+                                message_write_buffer.encode(&proto::local_management::Reply {
+                                    request_id: request.request_id,
+                                    one_of: Some(
+                                        proto::local_management::reply::OneOf::StartInstanceReply(
+                                            proto::StartInstanceReply { error: error },
                                         ),
                                     ),
                                 });
@@ -100,7 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 println!("LOCAL: run task request: {:?}", run_task_request);
 
                                 message_write_buffer.encode(&proto::local_management::Reply {
-                                    request_id: None,
+                                    request_id: request.request_id,
                                     one_of: Some(
                                         proto::local_management::reply::OneOf::RunTaskReply(
                                             proto::RunTaskReply {
@@ -116,10 +152,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     message_write_buffer.write(&mut named_pipe);
 
-                    sleep(Duration::from_millis(1000)).await;
+                    if let Some(time) = destroy_after {
+                        if SystemTime::now() < time {
+                            sleep(Duration::from_millis(200)).await;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
                 }
+
+                println!("Closed named pipe");
             });
-            
+
             sleep(Duration::from_micros(1)).await;
         }
     });
