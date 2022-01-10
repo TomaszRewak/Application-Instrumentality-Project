@@ -9,6 +9,8 @@ namespace ExecutableVanillaApplication
 		{
 			var pipe = new NamedPipeClientStream(pipeName);
 			pipe.Connect();
+
+			//pipe.Read()
 		}
 	}
 }
