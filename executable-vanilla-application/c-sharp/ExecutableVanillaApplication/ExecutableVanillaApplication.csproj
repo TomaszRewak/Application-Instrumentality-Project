@@ -1,7 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="set ProtoDir=$(ProjectDir)../../../proto/&#xD;&#xA;set OutputDir=$(ProjectDir)Generated&#xD;&#xA;set ProtoFile=local_management.proto&#xD;&#xA;&#xD;&#xA;if exist &quot;%25OutputDir%25&quot; rd /s /q &quot;%25OutputDir%25&quot;&#xD;&#xA;mkdir &quot;%25OutputDir%25&quot;&#xD;&#xA;&#xD;&#xA;protoc -I=&quot;%25ProtoDir%25&quot; --csharp_out=&quot;%25OutputDir%25&quot; &quot;%25ProtoDir%25%25ProtoFile%25&quot;" />
+		<ItemGroup>
+			<Compile Include="Generated\**\*.cs" />
+		</ItemGroup>
+	</Target>
 
 </Project>

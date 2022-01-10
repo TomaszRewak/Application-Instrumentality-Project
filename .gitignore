@@ -9,4 +9,5 @@ Cargo.lock
 **/*.rs.bk
 
 # c-sharp
+**/Generated/**/*.cs
 obj/
