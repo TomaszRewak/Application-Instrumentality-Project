@@ -39,7 +39,7 @@ namespace ExecutableVanillaApplication
 			_buffer.Accept(_pipe.Read(_buffer.NextAvailableChunk));
 		}
 
-		public bool TryParse(out Request request)
+		private bool TryParse(out Request request)
 		{
 			request = default;
 

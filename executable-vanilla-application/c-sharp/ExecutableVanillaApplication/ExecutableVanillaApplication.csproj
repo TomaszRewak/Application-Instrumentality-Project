@@ -5,7 +5,7 @@
 	</PropertyGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="set ProtoDir=$(ProjectDir)../../../proto&#xD;&#xA;set OutputDir=$(ProjectDir)Generated&#xD;&#xA;&#xD;&#xA;if exist &quot;%25OutputDir%25&quot; rd /s /q &quot;%25OutputDir%25&quot;&#xD;&#xA;mkdir &quot;%25OutputDir%25&quot;&#xD;&#xA;&#xD;&#xA;protoc -I=&quot;%25ProtoDir%25&quot; --csharp_out=&quot;%25OutputDir%25&quot; &quot;%25ProtoDir%25/workstation_management.proto&quot;&#xD;&#xA;protoc -I=&quot;%25ProtoDir%25&quot; --csharp_out=&quot;%25OutputDir%25&quot; &quot;%25ProtoDir%25/local_management.proto&quot;" />
+		<Exec Command="set ProtoDir=$(ProjectDir)../../../proto&#xD;&#xA;set OutputDir=$(ProjectDir)Generated&#xD;&#xA;&#xD;&#xA;if exist &quot;%25OutputDir%25&quot; rd /s /q &quot;%25OutputDir%25&quot;&#xD;&#xA;mkdir &quot;%25OutputDir%25&quot;&#xD;&#xA;&#xD;&#xA;protoc -I=&quot;%25ProtoDir%25&quot; --csharp_out=&quot;internal_access:%25OutputDir%25&quot; &quot;%25ProtoDir%25/workstation_management.proto&quot;&#xD;&#xA;protoc -I=&quot;%25ProtoDir%25&quot; --csharp_out=&quot;internal_access:%25OutputDir%25&quot; &quot;%25ProtoDir%25/local_management.proto&quot;" />
 		<ItemGroup>
 			<Compile Include="Generated\**\*.cs" />
 		</ItemGroup>

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package eva_management;
+
+import "workstation_management.proto";
+
+message Request
+{
+    optional uint32 request_id = 1;
+    optional bool keep_alive  = 2;
+
+    oneof one_of
+    {
+        RunTaskRequest run_task_request               = 6;
+    }
+}
+
+message Reply
+{
+    optional uint32 request_id = 1;
+
+    oneof one_of
+    {
+        RunTaskReply run_task_reply               = 5;
+    }
+}
