@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package workstation_management.local_management;
+package workstation_management.local;
 
 import "workstation_management.proto";
 

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package workstation_management.client_server;
+package workstation_management.remote;
 
 import "workstation_management.proto";
 

@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package application_management;
+
+message AvailableTasksUpdate
+{
+    message TaskDefinition
+    {
+        message Parameter
+        {
+            optional string name        = 1;
+            optional string description = 2;
+        }
+
+        optional string name          = 1;
+        optional string description   = 2;
+        repeated Parameter parameters = 3;
+    }
+
+    repeated TaskDefinition tasks = 1;
+}
+
+message RunningTasksUpdate
+{
+    repeated string task_ids = 1;
+}
+
+message State
+{
+    message Status
+    {
+        optional string short_description = 1;
+        optional string long_description  = 2;
+        optional bool is_ok               = 3;
+    }
+
+    message Progress
+    {
+        optional string short_description = 1;
+        optional string long_description  = 2;
+        optional int32 percentage         = 3;
+    }
+
+    repeated string errors     = 1;
+    repeated string warnings   = 2;
+    repeated string info       = 3;
+    repeated Status status     = 4;
+    repeated Progress progress = 5;
+}
+
+message InstanceStateUpdate
+{
+    optional State state = 1;
+}
+
+message TaskStateUpdate
+{
+    optional string task_id = 1;
+    optional State state    = 2;
+}
+
+message RunTaskRequest
+{
+    message Parameter
+    {
+        optional string name  = 1;
+        optional string value = 2;
+    }
+
+    optional string task_name     = 3;
+    optional string task_id       = 4;
+    repeated Parameter parameters = 5;
+}
+
+message RunTaskReply
+{
+    optional string error = 1;
+}
