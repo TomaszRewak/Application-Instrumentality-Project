@@ -15,8 +15,8 @@ namespace ExecutableVanillaApplication.Utils
 
 			return new VarInt
 			{
-				IsComplete = (chunk ^ 0b1000_0000) != 0,
-				Value = Value + ((chunk ^ 0b0111_1111) << (NumberOfChunks * 7)),
+				IsComplete = (chunk & 0b1000_0000) == 0,
+				Value = Value + ((chunk & 0b0111_1111) << (NumberOfChunks * 7)),
 				NumberOfChunks = NumberOfChunks + 1
 			};
 		}
