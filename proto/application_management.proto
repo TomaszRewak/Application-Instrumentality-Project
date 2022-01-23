@@ -20,6 +20,27 @@ message AvailableTasksUpdate
     repeated TaskDefinition tasks = 1;
 }
 
+message TaskParameterSuggestionRequest
+{
+    optional string task_name = 1;
+}
+
+message TaskParameterSuggestionReply
+{
+    message Suggestion
+    {
+        message Parameter
+        {
+            optional string name = 1;
+            optional string suggested_value = 2;
+        }
+
+        repeated Parameter parameters = 1;
+    }
+
+    repeated Suggestion suggestions = 1;
+}
+
 message RunningTasksUpdate
 {
     repeated string task_ids = 1;
