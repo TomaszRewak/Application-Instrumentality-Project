@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package application_management.local;
+
+import "application_management.proto";
+
+message ApplicationToManagerMessage
+{
+    optional uint32 request_id = 1;
+
+    oneof one_of
+    {
+        AvailableTasksUpdate available_tasks_update                  = 2;
+        TaskParameterSuggestionReply task_parameter_suggestion_reply = 3;
+        InstanceStateUpdate instance_state_update                    = 4;
+        TaskStateUpdate task_state_update                            = 5;
+        RunTaskReply run_task_reply                                  = 6;
+    }
+}
+
+message ManagerToApplicationMessage
+{
+    optional uint32 request_id = 1;
+
+    oneof one_of
+    {
+        TaskParameterSuggestionRequest task_parameter_suggestion_request = 2;
+        RunTaskRequest run_task_requst                                   = 3;
+    }
+}

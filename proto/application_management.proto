@@ -41,13 +41,14 @@ message TaskParameterSuggestionReply
     repeated Suggestion suggestions = 1;
 }
 
-message RunningTasksUpdate
-{
-    repeated string task_ids = 1;
-}
-
 message State
 {
+    enum State
+    {
+        Running = 0;
+        Stopped = 1;
+    }
+
     message Status
     {
         optional string short_description = 1;
@@ -62,11 +63,12 @@ message State
         optional int32 percentage         = 3;
     }
 
-    repeated string errors     = 1;
-    repeated string warnings   = 2;
-    repeated string info       = 3;
-    repeated Status status     = 4;
-    repeated Progress progress = 5;
+    optional State state       = 1;
+    repeated string errors     = 2;
+    repeated string warnings   = 3;
+    repeated string info       = 4;
+    repeated Status status     = 5;
+    repeated Progress progress = 6;
 }
 
 message InstanceStateUpdate
